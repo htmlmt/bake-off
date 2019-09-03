@@ -57,6 +57,8 @@ onMount(() => {
             label.addEventListener('animationiteration', stopLabelSpin);
             label.addEventListener('webkitAnimationIteration', stopLabelSpin);
         }
+        
+        releaseStopButton();
     }
 });
 
@@ -127,6 +129,12 @@ function moveNeedle(angle) {
 
 function stopPlaying() {
     stopButton.setAttribute('y', '257');
+    currentTrack = 'Stopped';
+    
+    moveNeedle(0);
+    
+    label.addEventListener('animationiteration', stopLabelSpin);
+    label.addEventListener('webkitAnimationIteration', stopLabelSpin);
 }
 
 function releaseStopButton() {
@@ -220,7 +228,7 @@ function releaseStopButton() {
                     </g>
                 </g>
             </g>
-            <g id='stop' on:mousedown={stopPlaying} on:mouseup={releaseStopButton} class='cursor-pointer'>
+            <g id='stop' on:mousedown={stopPlaying} class='cursor-pointer'>
                 <rect x='20' y='273' width='50' height='4' class='fill-current text-gray-900'/>
                 <rect id='stopButton' x='20' y='253' width='50' height='20' class='fill-current text-gray-700'/>
             </g>
