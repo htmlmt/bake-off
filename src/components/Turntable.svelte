@@ -1,37 +1,146 @@
+<script>
+let armCircle = '';
+let arm = '';
+let label = '';
+let stopButton = '';
+
+let armCircleDimensions = {};
+let armCircleCenter = { x: 0, y: 0 };
+let armCircleRadius = 0;
+
+let scrollPositionY = 0;
+let stopLabelSpin = false;
+
+import { onMount } from 'svelte';
+
+onMount(() => {
+    arm = document.getElementById('turn');
+    armCircle = document.getElementById('armCircle');
+    label = document.getElementById('label');
+    stopButton = document.getElementById('stopButton');
+    
+    stopLabelSpin = function() {
+        label.setAttribute('class', '');
+    }
+    
+    setTimeout(function() {
+        arm.setAttribute('transform', 'rotate(10)');
+        label.setAttribute('class', 'spin');
+    }, 2000);
+    
+    setTimeout(function() {
+        arm.setAttribute('style', 'transition-duration: 0s;');
+    }, 4000);
+    
+    getArmCircleCenter();
+});
+
+let needleUp = false;
+let currentTrack = 'Stopped';
+let currentMousePosition = { x: 0, y: 0 };
+let angle = 0;
+
+function getArmCircleCenter() {
+    armCircleDimensions = armCircle.getBoundingClientRect();
+    
+    scrollPositionY = window.pageYOffset;
+    window.scrollTo(0, 0);
+    
+    armCircleRadius = armCircleDimensions.width / 2;
+    armCircleCenter.x = armCircleDimensions.left + armCircleRadius;
+    armCircleCenter.y = armCircleDimensions.top + armCircleRadius;
+    
+    window.scrollTo(0, scrollPositionY);
+}
+
+function handleMousemove(event) {
+    if (needleUp) {
+        currentMousePosition.x = event.clientX;
+        currentMousePosition.y = event.clientY;
+        
+        let	distanceX = currentMousePosition.x - armCircleCenter.x,
+            distanceY = currentMousePosition.y - armCircleCenter.y;
+        
+        let angle = ((Math.atan2(distanceY, distanceX)) * (180 / Math.PI)) - 90;
+        
+        if (angle <= 28 || angle > 48) {
+            currentTrack = 'Stopped';
+        } else if (angle > 45) {
+            currentTrack = 'Five';
+        } else if (angle > 41) {
+            currentTrack = 'Four';
+        } else if (angle > 37) {
+            currentTrack = 'Three';
+        } else if (angle > 33) {
+            currentTrack = 'Two';
+        } else if (angle > 28) {
+            currentTrack = 'One';
+        }
+        
+        arm.setAttribute('transform', 'rotate(' + angle + ')');
+    }
+}
+
+function grabNeedle(event) {
+    arm.setAttribute('style', 'transition-duration: 0s;');
+    
+    needleUp = true;
+    
+    label.removeEventListener('animationiteration', stopLabelSpin);
+    label.removeEventListener('webkitAnimationIteration', stopLabelSpin);
+    label.setAttribute('class', 'spin');
+}
+
+window.onscroll = function() {
+    getArmCircleCenter();
+}
+
+window.onmouseup = function() {
+    needleUp = false;
+    
+    if (currentTrack === 'One') {
+        moveNeedle(30);
+    } else if (currentTrack === 'Two') {
+        moveNeedle(34);
+    } else if (currentTrack === 'Three') {
+        moveNeedle(38);
+    } else if (currentTrack === 'Four') {
+        moveNeedle(41.5);
+    } else if (currentTrack === 'Five') {
+        moveNeedle(45.5);
+    } else if (currentTrack === 'Stopped') {
+        moveNeedle(0);
+        
+        label.addEventListener('animationiteration', stopLabelSpin);
+        label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+    }
+}
+
+function moveNeedle(angle) {
+    arm.setAttribute('style', 'transition-duration: 1s;');
+    arm.setAttribute('transform', 'rotate(' + angle + ')');
+    
+    setTimeout(function() {
+        arm.setAttribute('style', 'transition-duration: 0s;');
+    }, 1000);
+}
+
+function stopPlaying() {
+    stopButton.setAttribute('y', '257');
+}
+
+function releaseStopButton() {
+    stopButton.setAttribute('y', '253');
+}
+</script>
+
 <style>
-    #label {
-        animation-name: spin;
-        animation-delay: 2s;
-        animation-duration: 5s;
-        animation-fill-mode: forwards;
-        animation-iteration-count: infinite;
-        animation-timing-function: linear;
-    }
-    
-    #turn {
-        animation-name: pickup;
-        animation-delay: 2s;
-        animation-duration: 3s;
-        animation-fill-mode: forwards;
-        animation-iteration-count: 1;
-    }
-    
     .track {
         cursor: pointer;
     }
-    
-    @keyframes spin {
-        from {transform: rotate(0deg);}
-        to {transform: rotate(360deg);}
-    }
-    
-    @keyframes pickup {
-        from {transform: rotate(0deg);}
-        to {transform: rotate(10deg);}
-    }
 </style>
 
-<div class='mx-auto max-w-6xl'>
+<div id='turntableContainer' class='mx-auto max-w-6xl' on:mousemove={handleMousemove}>
     <svg viewBox='0 0 450 308' fill='none' xmlns='http://www.w3.org/2000/svg'>
         <g id='recordPlayer'>
             <g id='table'>
@@ -39,11 +148,11 @@
                 <rect id='front' y='288' width='450' height='20' class='fill-current text-gray-200'/>
             </g>
             <circle id='record' cx='200' cy='150' r='150' class='fill-current text-gray-900'/>
-            <circle id='trackOne' cx='200.5' cy='150.5' r='132.5' class='track stroke-current text-gray-800' stroke-width='10'/>
-            <circle id='trackTwo' cx='200.5' cy='150.5' r='117.5' class='track stroke-current text-gray-800' stroke-width='10'/>
-            <circle id='trackThree' cx='200.5' cy='150.5' r='102.5' class='track stroke-current text-gray-800' stroke-width='10'/>
-            <circle id='trackFour' cx='200.5' cy='150.5' r='87.5' class='track stroke-current text-gray-800' stroke-width='10'/>
-            <circle id='trackFive' cx='200.5' cy='150.5' r='72.5' class='track stroke-current text-gray-800' stroke-width='10'/>
+            <circle data-track='One' id='trackOne' cx='200.5' cy='150.5' r='132.5' class='track stroke-current text-gray-800' stroke-width='10'/>
+            <circle data-track='Two' id='trackTwo' cx='200.5' cy='150.5' r='117.5' class='track stroke-current text-gray-800' stroke-width='10'/>
+            <circle data-track='Three' id='trackThree' cx='200.5' cy='150.5' r='102.5' class='track stroke-current text-gray-800' stroke-width='10'/>
+            <circle data-track='Four' id='trackFour' cx='200.5' cy='150.5' r='87.5' class='track stroke-current text-gray-800' stroke-width='10'/>
+            <circle data-track='Five' id='trackFive' cx='200.5' cy='150.5' r='72.5' class='track stroke-current text-gray-800' stroke-width='10'/>
             <mask id='labelMask' mask-type='alpha' maskUnits='userSpaceOnUse' x='150' y='100' width='100' height='100'>
                 <circle cx='200' cy='150' r='50' class='fill-current text-teal-600'/>
             </mask>
@@ -111,15 +220,15 @@
                     </g>
                 </g>
             </g>
-            <g id='stop' class='cursor-pointer'>
-                <rect x='20' y='253' width='50' height='20' class='fill-current text-gray-700'/>
+            <g id='stop' on:mousedown={stopPlaying} on:mouseup={releaseStopButton} class='cursor-pointer'>
                 <rect x='20' y='273' width='50' height='4' class='fill-current text-gray-900'/>
+                <rect id='stopButton' x='20' y='253' width='50' height='20' class='fill-current text-gray-700'/>
             </g>
             <g id='arm'>
-                <circle cx='415' cy='48' r='15' class='fill-current text-gray-400'/>
-                <g id='turn' transform-origin="415px 48px">
+                <circle id='armCircle' cx='415' cy='48' r='15' class='fill-current text-gray-400'/>
+                <g id='turn' transform-origin="415px 48px" style="transition-duration: 2s;">
                     <rect x='410' y='48' width='10' height='200' class='fill-current text-gray-400'/>
-                    <g id='needle' class='cursor-move'>
+                    <g id='needle' on:mousedown={grabNeedle} class='cursor-move'>
                         <rect x='405' y='248' width='17' height='30' class='fill-current text-gray-900'/>
                         <rect x='422' y='248' width='3' height='30' class='fill-current text-red-600'/>
                     </g>
