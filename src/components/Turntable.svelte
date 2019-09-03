@@ -1,4 +1,6 @@
 <script>
+import { onMount } from 'svelte';
+
 let armCircle = '';
 let arm = '';
 let label = '';
@@ -10,8 +12,6 @@ let armCircleRadius = 0;
 
 let scrollPositionY = 0;
 let stopLabelSpin = false;
-
-import { onMount } from 'svelte';
 
 onMount(() => {
     arm = document.getElementById('turn');
@@ -33,6 +33,31 @@ onMount(() => {
     }, 4000);
     
     getArmCircleCenter();
+    
+    window.onscroll = function() {
+        getArmCircleCenter();
+    }
+
+    window.onmouseup = function() {
+        needleUp = false;
+        
+        if (currentTrack === 'One') {
+            moveNeedle(30);
+        } else if (currentTrack === 'Two') {
+            moveNeedle(34);
+        } else if (currentTrack === 'Three') {
+            moveNeedle(38);
+        } else if (currentTrack === 'Four') {
+            moveNeedle(41.5);
+        } else if (currentTrack === 'Five') {
+            moveNeedle(45.5);
+        } else if (currentTrack === 'Stopped') {
+            moveNeedle(0);
+            
+            label.addEventListener('animationiteration', stopLabelSpin);
+            label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+        }
+    }
 });
 
 let needleUp = false;
@@ -89,31 +114,6 @@ function grabNeedle(event) {
     label.removeEventListener('animationiteration', stopLabelSpin);
     label.removeEventListener('webkitAnimationIteration', stopLabelSpin);
     label.setAttribute('class', 'spin');
-}
-
-window.onscroll = function() {
-    getArmCircleCenter();
-}
-
-window.onmouseup = function() {
-    needleUp = false;
-    
-    if (currentTrack === 'One') {
-        moveNeedle(30);
-    } else if (currentTrack === 'Two') {
-        moveNeedle(34);
-    } else if (currentTrack === 'Three') {
-        moveNeedle(38);
-    } else if (currentTrack === 'Four') {
-        moveNeedle(41.5);
-    } else if (currentTrack === 'Five') {
-        moveNeedle(45.5);
-    } else if (currentTrack === 'Stopped') {
-        moveNeedle(0);
-        
-        label.addEventListener('animationiteration', stopLabelSpin);
-        label.addEventListener('webkitAnimationIteration', stopLabelSpin);
-    }
 }
 
 function moveNeedle(angle) {
