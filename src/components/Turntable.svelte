@@ -68,11 +68,21 @@ onMount(() => {
         
         releaseStopButton();
     }
+    
+    window.ontouchend = function() {
+        if (currentTrack === 'Stopped') {
+            moveNeedle(0);
+            
+            label.addEventListener('animationiteration', stopLabelSpin);
+            label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+        }
+    }
 });
 
 let needleUp = false;
 let currentTrack = 'Stopped';
 let currentMousePosition = { x: 0, y: 0 };
+let currentTouchPosition = { x: 0, y: 0 };
 let angle = 0;
 
 function getArmCircleCenter() {
@@ -109,6 +119,36 @@ function handleMousemove(event) {
         if (angle >= 0 && angle <= 48) {
             arm.setAttribute('style', 'transform: rotate(' + angle + 'deg); transition-duration: 0s;');
         }
+    }
+}
+
+let lastAngle = 0;
+
+function handleTouchmove(event) {
+    currentTouchPosition.x = event.pageX;
+    currentTouchPosition.y = event.pageY;
+    
+    let	distanceX = currentTouchPosition.x - armCircleCenter.x,
+        distanceY = currentTouchPosition.y - armCircleCenter.y;
+        
+    let angle = 0;
+    
+    if (window.innerWidth > window.innerHeight) {
+        angle = ((Math.atan2(distanceY, distanceX)) * (180 / Math.PI)) - 90;
+    } else {
+        angle = ((Math.atan2(distanceX, distanceY)) * (180 / Math.PI)) - 90;
+    }
+    
+    let lessThanOne = Math.abs(angle - lastAngle) < 5;        
+    
+    if (lessThanOne) {
+        setTrackNumber(angle);
+        
+        if (angle >= 0 && angle <= 48) {
+            arm.setAttribute('style', 'transform: rotate(' + angle + 'deg); transition-duration: 0s;');
+        }
+        
+        lastAngle = angle;
     }
 }
 
@@ -189,7 +229,7 @@ function startLabelSpin() {
 </style>
 
 <div class="wrapper">
-    <div id='turntableContainer' class='mx-auto max-w-6xl' on:mousemove={handleMousemove}>
+    <div id='turntableContainer' class='mx-auto max-w-6xl' on:mousemove={handleMousemove} on:touchmove={handleTouchmove}>
         <svg viewBox='0 0 450 308' fill='none' xmlns='http://www.w3.org/2000/svg'>
             <g id='recordPlayer'>
                 <g id='table'>
