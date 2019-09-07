@@ -27,7 +27,6 @@
         leading-tight
         mb-4
         text-4xl
-        tracking-wider
     '>Writing</h1>
 
     <ul>
