@@ -119,9 +119,6 @@ function setTrackNumber(angle) {
     } else {
         currentTrack = 'Stopped';
     }
-    
-    console.log(currentTrack);
-    console.log(angle);
 }
 
 function grabNeedle(event) {
@@ -175,7 +172,6 @@ function startLabelSpin() {
 }
 
 let target = '';
-let allowSetAngle = true;
 
 function touchNeedle(event) {
     target = event.target;
@@ -187,17 +183,11 @@ function touchNeedle(event) {
     target.addEventListener('touchmove', function(e) {
         e.touches[0].clientX;
         
-        if (allowSetAngle) {
-            allowSetAngle = false;
-            
-            setAngle(e.touches[0]);
-            
-            setTimeout(function() {
-                allowSetAngle = true;
-            }, 10);
-        }
+        setAngle(e.touches[0]);
     });
 }
+
+let lastAngle = 10;
 
 function setAngle(event) {
     if (needleUp && allowNeedleGrab) {
@@ -216,10 +206,16 @@ function setAngle(event) {
         }
         
         if (!Number.isNaN(angle)) {
-            setTrackNumber(angle);
+            var lessThanTen = Math.abs(angle - lastAngle) < 5;
             
-            if (angle >= 0 && angle <= 48) {
-                arm.setAttribute('style', 'transform: rotate(' + angle + 'deg); transition-duration: 0s;');
+            if (lessThanTen) {
+                setTrackNumber(angle);
+                
+                if (angle >= 0 && angle <= 48) {
+                    arm.setAttribute('style', 'transform: rotate(' + angle + 'deg); transition-duration: 0s;');
+                }
+                
+                lastAngle = angle;
             }
         }
     }
