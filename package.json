@@ -1,6 +1,6 @@
 {
-    "name": "TODO",
-    "description": "TODO",
+    "name": "the-full-mt",
+    "description": "A portfolio and blog by Michael Todd.",
     "version": "0.0.1",
     "scripts": {
         "dev": "sapper dev",

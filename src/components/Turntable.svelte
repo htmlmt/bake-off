@@ -69,12 +69,18 @@ onMount(() => {
         releaseStopButton();
     }
     
+    window.addEventListener('touchmove', handleMousemove);
+    
     window.ontouchend = function() {
-        if (currentTrack === 'Stopped') {
-            moveNeedle(0);
+        if (needleUp) {
+            needleUp = false;
             
-            label.addEventListener('animationiteration', stopLabelSpin);
-            label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+            if (currentTrack === 'Stopped') {
+                moveNeedle(0);
+                
+                label.addEventListener('animationiteration', stopLabelSpin);
+                label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+            }
         }
     }
 });
@@ -98,58 +104,8 @@ function getArmCircleCenter() {
     window.scrollTo(0, scrollPositionY);
 }
 
-function handleMousemove(event) {
-    if (needleUp && allowNeedleGrab) {
-        currentMousePosition.x = event.clientX;
-        currentMousePosition.y = event.clientY;
-        
-        let	distanceX = currentMousePosition.x - armCircleCenter.x,
-            distanceY = currentMousePosition.y - armCircleCenter.y;
-            
-        let angle = 0;
-        
-        if (window.innerWidth > window.innerHeight) {
-            angle = ((Math.atan2(distanceY, distanceX)) * (180 / Math.PI)) - 90;
-        } else {
-            angle = ((Math.atan2(distanceX, distanceY)) * (180 / Math.PI)) - 90;
-        }
-        
-        setTrackNumber(angle);
-        
-        if (angle >= 0 && angle <= 48) {
-            arm.setAttribute('style', 'transform: rotate(' + angle + 'deg); transition-duration: 0s;');
-        }
-    }
-}
-
-let lastAngle = 0;
-
-function handleTouchmove(event) {
-    currentTouchPosition.x = event.pageX;
-    currentTouchPosition.y = event.pageY;
-    
-    let	distanceX = currentTouchPosition.x - armCircleCenter.x,
-        distanceY = currentTouchPosition.y - armCircleCenter.y;
-        
-    let angle = 0;
-    
-    if (window.innerWidth > window.innerHeight) {
-        angle = ((Math.atan2(distanceY, distanceX)) * (180 / Math.PI)) - 90;
-    } else {
-        angle = ((Math.atan2(distanceX, distanceY)) * (180 / Math.PI)) - 90;
-    }
-    
-    let lessThanOne = Math.abs(angle - lastAngle) < 5;        
-    
-    if (lessThanOne) {
-        setTrackNumber(angle);
-        
-        if (angle >= 0 && angle <= 48) {
-            arm.setAttribute('style', 'transform: rotate(' + angle + 'deg); transition-duration: 0s;');
-        }
-        
-        lastAngle = angle;
-    }
+function handleMousemove() {
+    setAngle(event);
 }
 
 function setTrackNumber(angle) {
@@ -163,6 +119,9 @@ function setTrackNumber(angle) {
     } else {
         currentTrack = 'Stopped';
     }
+    
+    console.log(currentTrack);
+    console.log(angle);
 }
 
 function grabNeedle(event) {
@@ -214,6 +173,57 @@ function startLabelSpin() {
     label.removeEventListener('webkitAnimationIteration', stopLabelSpin);
     label.setAttribute('class', 'spin');
 }
+
+let target = '';
+let allowSetAngle = true;
+
+function touchNeedle(event) {
+    target = event.target;
+    
+    needleUp = true;
+    
+    startLabelSpin();
+    
+    target.addEventListener('touchmove', function(e) {
+        e.touches[0].clientX;
+        
+        if (allowSetAngle) {
+            allowSetAngle = false;
+            
+            setAngle(e.touches[0]);
+            
+            setTimeout(function() {
+                allowSetAngle = true;
+            }, 10);
+        }
+    });
+}
+
+function setAngle(event) {
+    if (needleUp && allowNeedleGrab) {
+        currentMousePosition.x = event.clientX;
+        currentMousePosition.y = event.clientY;
+        
+        let	distanceX = currentMousePosition.x - armCircleCenter.x,
+            distanceY = currentMousePosition.y - armCircleCenter.y;
+            
+        let angle = 0;
+        
+        if (window.innerWidth > window.innerHeight) {
+            angle = ((Math.atan2(distanceY, distanceX)) * (180 / Math.PI)) - 90;
+        } else {
+            angle = ((Math.atan2(distanceX, distanceY)) * (180 / Math.PI)) - 90;
+        }
+        
+        if (!Number.isNaN(angle)) {
+            setTrackNumber(angle);
+            
+            if (angle >= 0 && angle <= 48) {
+                arm.setAttribute('style', 'transform: rotate(' + angle + 'deg); transition-duration: 0s;');
+            }
+        }
+    }
+}
 </script>
 
 <style>
@@ -229,7 +239,7 @@ function startLabelSpin() {
 </style>
 
 <div class="wrapper">
-    <div id='turntableContainer' class='mx-auto max-w-6xl' on:mousemove={handleMousemove} on:touchmove={handleTouchmove}>
+    <div id='turntableContainer' class='mx-auto max-w-6xl' on:mousemove={handleMousemove} on:touchstart={touchNeedle}>
         <svg viewBox='0 0 450 308' fill='none' xmlns='http://www.w3.org/2000/svg'>
             <g id='recordPlayer'>
                 <g id='table'>
