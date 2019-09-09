@@ -188,17 +188,26 @@ function setAngle(event) {
     }
 }
 
+let allowPlayStop = true;
+
 function playStopMobile() {
-    if (window.innerWidth < window.innerHeight) {
-        if (playIcon.getAttribute('points') === '410, 259 417, 259 417, 267 410, 267') {
-            stopPlaying();
-            playIcon.setAttribute('points', '410, 259 417, 259 413.5, 267');
-        } else {
-            startLabelSpin();
-            moveNeedle(30);
-            playIcon.setAttribute('points', '410, 259 417, 259 417, 267 410, 267');
+    if (allowPlayStop && allowNeedleGrab) {
+        allowPlayStop = false;
+        
+        if (window.innerWidth < window.innerHeight) {
+            if (playIcon.getAttribute('points') === '410, 259 417, 259 417, 267 410, 267') {
+                stopPlaying();
+                playIcon.setAttribute('points', '410, 259 417, 259 413.5, 267');
+            } else {
+                startLabelSpin();
+                moveNeedle(30);
+                playIcon.setAttribute('points', '410, 259 417, 259 417, 267 410, 267');
+            }
         }
         
+        setTimeout(function() {
+            allowPlayStop = true;
+        }, 500);
     }
 }
 </script>

@@ -18,7 +18,7 @@
     
     <style>
     #sapper {
-        padding-top: 116px;
+        padding-top: 99px;
     }
     
     #label.spin {
@@ -27,23 +27,6 @@
         animation-fill-mode: forwards;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
-    }
-    
-    header p > a {
-        color: #e2e8f0;
-        -webkit-text-stroke-width: 1px;
-        -webkit-text-stroke-color: black;
-    }
-    
-    header p {
-        background-clip: text;
-        -webkit-background-clip: text;
-        background-image: url(black.png);
-    }
-    
-    @keyframes fillTitle {
-        from {background-position: 0% 100%;}
-        to {background-position: 0% 0%;}
     }
     
     @keyframes spin {
@@ -121,7 +104,7 @@
 
 	%sapper.head%
 </head>
-<body class='bg-gray-500 px-8'>
+<body class='bg-gray-500'>
 	<div id='sapper'>%sapper.html%</div>
 
 	%sapper.scripts%

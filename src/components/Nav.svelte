@@ -15,12 +15,11 @@
     px-12
     py-4
     right-0
-    shadow-2xl
     top-0
 '>
     <p class='
         font-bold
-        font-display
+        font-body
         text-4xl
         text-gray-900
         tracking-wider
