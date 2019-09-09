@@ -5,6 +5,7 @@ let armCircle = '';
 let arm = '';
 let label = '';
 let stopButton = '';
+let playIcon = '';
 let tracks = '';
 
 let armCircleDimensions = {};
@@ -29,6 +30,7 @@ onMount(() => {
     armCircle = document.getElementById('armCircle');
     label = document.getElementById('label');
     stopButton = document.getElementById('stopButton');
+    playIcon = document.getElementById('playIcon');
     
     stopLabelSpin = function() {
         label.setAttribute('class', '');
@@ -44,43 +46,36 @@ onMount(() => {
         allowNeedleGrab = true;
     }, 3000);
     
-    getArmCircleCenter();
+    if (window.innerWidth > window.innerHeight) {
+        getArmCircleCenter();
+    }
     
     window.onscroll = function() {
-        getArmCircleCenter();
+        if (window.innerWidth > window.innerHeight) {
+            getArmCircleCenter();
+        }
     }
     
     window.onresize = function() {
-        getArmCircleCenter();
+        if (window.innerWidth > window.innerHeight) {
+            getArmCircleCenter();
+        }
     }
 
     window.onmouseup = function() {
-        if (needleUp) {
-            needleUp = false;
-            
-            if (currentTrack === 'Stopped') {
-                moveNeedle(0);
+        if (window.innerWidth > window.innerHeight) {
+            if (needleUp) {
+                needleUp = false;
                 
-                label.addEventListener('animationiteration', stopLabelSpin);
-                label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+                if (currentTrack === 'Stopped') {
+                    moveNeedle(0);
+                    
+                    label.addEventListener('animationiteration', stopLabelSpin);
+                    label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+                }
             }
-        }
-        
-        releaseStopButton();
-    }
-    
-    window.addEventListener('touchmove', handleMousemove);
-    
-    window.ontouchend = function() {
-        if (needleUp) {
-            needleUp = false;
             
-            if (currentTrack === 'Stopped') {
-                moveNeedle(0);
-                
-                label.addEventListener('animationiteration', stopLabelSpin);
-                label.addEventListener('webkitAnimationIteration', stopLabelSpin);
-            }
+            releaseStopButton();
         }
     }
 });
@@ -102,6 +97,8 @@ function getArmCircleCenter() {
     armCircleCenter.y = armCircleDimensions.top + armCircleRadius;
     
     window.scrollTo(0, scrollPositionY);
+    
+    allowNeedleGrab = true;
 }
 
 function handleMousemove() {
@@ -156,7 +153,7 @@ function releaseStopButton() {
 }
 
 function clickTrack(event) {
-    if (allowNeedleGrab) {
+    if (allowNeedleGrab && window.innerWidth > window.innerHeight) {
         currentTrack = event.target.getAttribute('data-track');
         
         startLabelSpin();
@@ -171,71 +168,65 @@ function startLabelSpin() {
     label.setAttribute('class', 'spin');
 }
 
-let target = '';
-
-function touchNeedle(event) {
-    target = event.target;
-    
-    needleUp = true;
-    
-    startLabelSpin();
-    
-    target.addEventListener('touchmove', function(e) {
-        e.touches[0].clientX;
-        
-        setAngle(e.touches[0]);
-    });
-}
-
-let lastAngle = 10;
-
 function setAngle(event) {
-    if (needleUp && allowNeedleGrab) {
+    if (needleUp && allowNeedleGrab && window.innerWidth > window.innerHeight) {
         currentMousePosition.x = event.clientX;
         currentMousePosition.y = event.clientY;
         
         let	distanceX = currentMousePosition.x - armCircleCenter.x,
             distanceY = currentMousePosition.y - armCircleCenter.y;
             
-        let angle = 0;
-        
-        if (window.innerWidth > window.innerHeight) {
-            angle = ((Math.atan2(distanceY, distanceX)) * (180 / Math.PI)) - 90;
-        } else {
-            angle = ((Math.atan2(distanceX, distanceY)) * (180 / Math.PI)) - 90;
-        }
+        let angle = ((Math.atan2(distanceY, distanceX)) * (180 / Math.PI)) - 90;
         
         if (!Number.isNaN(angle)) {
-            var lessThanTen = Math.abs(angle - lastAngle) < 5;
+            setTrackNumber(angle);
             
-            if (lessThanTen) {
-                setTrackNumber(angle);
-                
-                if (angle >= 0 && angle <= 48) {
-                    arm.setAttribute('style', 'transform: rotate(' + angle + 'deg); transition-duration: 0s;');
-                }
-                
-                lastAngle = angle;
+            if (angle >= 0 && angle <= 48) {
+                arm.setAttribute('style', 'transform: rotate(' + angle + 'deg); transition-duration: 0s;');
             }
         }
+    }
+}
+
+function playStopMobile() {
+    if (window.innerWidth < window.innerHeight) {
+        if (playIcon.getAttribute('points') === '410, 259 417, 259 417, 267 410, 267') {
+            stopPlaying();
+            playIcon.setAttribute('points', '410, 259 417, 259 413.5, 267');
+        } else {
+            startLabelSpin();
+            moveNeedle(30);
+            playIcon.setAttribute('points', '410, 259 417, 259 417, 267 410, 267');
+        }
+        
     }
 }
 </script>
 
 <style>
-    .track {
-        cursor: pointer;
-    }
-    
     #turn {
         transform-origin: 50% 0%;
         transform-box: fill-box;
         transition-duration: 1s;
     }
+    
+    #playIcon {
+        fill: white;
+    }
+    
+    @media only screen and (orientation: landscape) {
+        #playIcon {
+            display: none;
+        }
+        
+        .track {
+            cursor: pointer;
+        }
+    }
 </style>
 
 <div class="wrapper">
-    <div id='turntableContainer' class='mx-auto max-w-6xl' on:mousemove={handleMousemove} on:touchstart={touchNeedle}>
+    <div id='turntableContainer' class='mx-auto max-w-6xl' on:mousemove={handleMousemove}>
         <svg viewBox='0 0 450 308' fill='none' xmlns='http://www.w3.org/2000/svg'>
             <g id='recordPlayer'>
                 <g id='table'>
@@ -323,9 +314,10 @@ function setAngle(event) {
                     <circle id='armCircle' cx='415' cy='48' r='15' class='fill-current text-gray-400'/>
                     <g id='turn' style="transition-duration: 2s;">
                         <rect x='410' y='48' width='10' height='200' class='fill-current text-gray-400'/>
-                        <g id='needle' on:mousedown={grabNeedle} class='cursor-move'>
+                        <g id='needle' on:mouseup={playStopMobile} on:touchstart={playStopMobile} on:mousedown={grabNeedle}>
                             <rect x='405' y='248' width='17' height='30' class='fill-current text-gray-900'/>
                             <rect x='422' y='248' width='3' height='30' class='fill-current text-red-600'/>
+                            <polygon id='playIcon' points="410, 259 417, 259 413.5, 267" ></polygon>
                         </g>
                     </g>
                 </g>

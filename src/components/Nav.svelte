@@ -21,11 +21,11 @@
     <p class='
         font-bold
         font-display
-        text-2xl
+        text-4xl
         text-gray-900
         tracking-wider
     '>
-        <a href='.'>The Full MT</a>
+        <a href='.'>MT</a>
     </p>
     <nav class='
         flex
@@ -58,8 +58,8 @@
                     flex
                     items-center
                     
-                    {segment === "writing" ? "underline" : ""}
-                ' href='writing'>writing</a>
+                    {segment === "blog" ? "underline" : ""}
+                ' href='blog'>blog</a>
             </li>
         </ul>
     </nav>

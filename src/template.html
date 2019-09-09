@@ -14,7 +14,7 @@
     
     <link rel='stylesheet' href='index.css' />
     
-    <link href="https://fonts.googleapis.com/css?family=Cabin:400,700|Staatliches&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Cabin:400,700|Montserrat&display=swap" rel="stylesheet">
     
     <style>
     #sapper {
@@ -27,6 +27,23 @@
         animation-fill-mode: forwards;
         animation-iteration-count: infinite;
         animation-timing-function: linear;
+    }
+    
+    header p > a {
+        color: #e2e8f0;
+        -webkit-text-stroke-width: 1px;
+        -webkit-text-stroke-color: black;
+    }
+    
+    header p {
+        background-clip: text;
+        -webkit-background-clip: text;
+        background-image: url(black.png);
+    }
+    
+    @keyframes fillTitle {
+        from {background-position: 0% 100%;}
+        to {background-position: 0% 0%;}
     }
     
     @keyframes spin {
@@ -57,6 +74,10 @@
         z-index: 100;
     }
     
+    #needle {
+        cursor: move;
+    }
+    
     @media only screen and (orientation: portrait) {
         .wrapper {
             left: 50%;
@@ -67,6 +88,7 @@
         }
         
         #needle {
+            cursor: pointer;
             transform: scale(2, 2);
             transform-origin: 416px 279px;
         }

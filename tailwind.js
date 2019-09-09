@@ -1,7 +1,7 @@
 module.exports = {
     theme: {
         fontFamily: {
-            display: ['Staatliches', 'sans-serif'],
+            display: ['Montserrat', 'sans-serif'],
             body: ['Cabin', 'sans-serif'],
         },
         variants: {},
