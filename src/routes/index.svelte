@@ -15,10 +15,6 @@ onMount(() => {
 });
 </script>
 
-<style>
-
-</style>
-
 <svelte:head>
     <title>The Full MT</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>

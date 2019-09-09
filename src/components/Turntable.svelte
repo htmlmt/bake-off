@@ -6,6 +6,7 @@ let arm = '';
 let label = '';
 let stopButton = '';
 let playIcon = '';
+let playIconLandscape = '';
 let tracks = '';
 
 let armCircleDimensions = {};
@@ -31,6 +32,7 @@ onMount(() => {
     label = document.getElementById('label');
     stopButton = document.getElementById('stopButton');
     playIcon = document.getElementById('playIcon');
+    playIconLandscape = document.getElementById('playIconLandscape');
     
     stopLabelSpin = function() {
         label.setAttribute('class', '');
@@ -72,6 +74,8 @@ onMount(() => {
                     
                     label.addEventListener('animationiteration', stopLabelSpin);
                     label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+                    
+                    playIconLandscape.setAttribute('points', '38, 258 38, 268 52, 263');
                 }
             }
             
@@ -139,17 +143,35 @@ function moveNeedle(angle) {
 }
 
 function stopPlaying() {
-    stopButton.setAttribute('y', '257');
-    currentTrack = 'Stopped';
-    
-    moveNeedle(0);
-    
-    label.addEventListener('animationiteration', stopLabelSpin);
-    label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+    if (allowNeedleGrab) {
+        stopButton.setAttribute('y', '257');
+        
+        if (playIconLandscape.getAttribute('points') === '38, 258 38, 268 52, 263') {
+            startLabelSpin();
+            moveNeedle(30);
+            
+            playIconLandscape.setAttribute('points', '38, 262 38, 272 52, 272 52, 262');
+        } else {
+            currentTrack = 'Stopped';
+            
+            moveNeedle(0);
+            
+            label.addEventListener('animationiteration', stopLabelSpin);
+            label.addEventListener('webkitAnimationIteration', stopLabelSpin);
+            
+            playIconLandscape.setAttribute('points', '38, 262 38, 272 52, 267');
+        }
+    }
 }
 
 function releaseStopButton() {
     stopButton.setAttribute('y', '253');
+    
+    if (playIconLandscape.getAttribute('points') === '38, 262 38, 272 52, 267') {
+        playIconLandscape.setAttribute('points', '38, 258 38, 268 52, 263');
+    } else {
+        playIconLandscape.setAttribute('points', '38, 258 38, 268 52, 268 52, 258');
+    }
 }
 
 function clickTrack(event) {
@@ -196,7 +218,13 @@ function playStopMobile() {
         
         if (window.innerWidth < window.innerHeight) {
             if (playIcon.getAttribute('points') === '410, 259 417, 259 417, 267 410, 267') {
-                stopPlaying();
+                stopButton.setAttribute('y', '257');
+                currentTrack = 'Stopped';
+                
+                moveNeedle(0);
+                
+                label.addEventListener('animationiteration', stopLabelSpin);
+                label.addEventListener('webkitAnimationIteration', stopLabelSpin);
                 playIcon.setAttribute('points', '410, 259 417, 259 413.5, 267');
             } else {
                 startLabelSpin();
@@ -219,13 +247,32 @@ function playStopMobile() {
         transition-duration: 1s;
     }
     
-    #playIcon {
+    #playIcon,
+    #playIconLandscape {
         fill: white;
     }
     
+    #playIconLandscape {
+        display: none;
+    }
+    
     @media only screen and (orientation: landscape) {
+        svg {
+            height: 100%;
+            left: 50%;
+            max-width: 100%;
+            position: fixed;
+            top: 50%;
+            transform-origin: 50% 50%;
+            transform: translate(-50%, -50%);
+        }
+        
         #playIcon {
             display: none;
+        }
+        
+        #playIconLandscape {
+            display: block;
         }
         
         .track {
@@ -315,9 +362,10 @@ function playStopMobile() {
                         </g>
                     </g>
                 </g>
-                <g id='stop' on:mousedown={stopPlaying} class='cursor-pointer'>
+                <g id='stop' on:mousedown={stopPlaying} on:touchstart={stopPlaying} class='cursor-pointer'>
                     <rect x='20' y='273' width='50' height='4' class='fill-current text-gray-900'/>
                     <rect id='stopButton' x='20' y='253' width='50' height='20' class='fill-current text-gray-700'/>
+                    <polygon id='playIconLandscape' points='38, 258 38, 268 52, 263' ></polygon>
                 </g>
                 <g id='arm'>
                     <circle id='armCircle' cx='415' cy='48' r='15' class='fill-current text-gray-400'/>
@@ -326,7 +374,7 @@ function playStopMobile() {
                         <g id='needle' on:mouseup={playStopMobile} on:touchstart={playStopMobile} on:mousedown={grabNeedle}>
                             <rect x='405' y='248' width='17' height='30' class='fill-current text-gray-900'/>
                             <rect x='422' y='248' width='3' height='30' class='fill-current text-red-600'/>
-                            <polygon id='playIcon' points="410, 259 417, 259 413.5, 267" ></polygon>
+                            <polygon id='playIcon' points='410, 259 417, 259 413.5, 267' ></polygon>
                         </g>
                     </g>
                 </g>
