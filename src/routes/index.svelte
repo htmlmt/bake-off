@@ -1,5 +1,6 @@
 <script>
 import { onMount } from 'svelte';
+import Tracks from '../components/Tracks.svelte';
 import Turntable from '../components/Turntable.svelte';
 
 onMount(() => {
@@ -20,4 +21,5 @@ onMount(() => {
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 </svelte:head>
 
+<Tracks/>
 <Turntable/>

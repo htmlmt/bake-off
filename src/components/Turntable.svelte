@@ -9,6 +9,12 @@ let playIcon = '';
 let playIconLandscape = '';
 let tracks = '';
 
+let trackOne = '';
+let trackTwo = '';
+let trackThree = '';
+let trackFour = '';
+let trackFive = '';
+
 let armCircleDimensions = {};
 let armCircleCenter = { x: 0, y: 0 };
 let armCircleRadius = 0;
@@ -33,6 +39,12 @@ onMount(() => {
     stopButton = document.getElementById('stopButton');
     playIcon = document.getElementById('playIcon');
     playIconLandscape = document.getElementById('playIconLandscape');
+    
+    trackOne = document.getElementById('trackOneAudio');
+    trackTwo = document.getElementById('trackTwoAudio');
+    trackThree = document.getElementById('trackThreeAudio');
+    trackFour = document.getElementById('trackFourAudio');
+    trackFive = document.getElementById('trackFiveAudio');
     
     stopLabelSpin = function() {
         label.setAttribute('class', '');
@@ -68,6 +80,10 @@ onMount(() => {
         if (window.innerWidth > window.innerHeight) {
             if (needleUp) {
                 needleUp = false;
+                
+                pauseAllTracks();
+                
+                document.getElementById('track' + currentTrack + 'Audio').play();
                 
                 if (currentTrack === 'Stopped') {
                     moveNeedle(0);
@@ -144,6 +160,8 @@ function moveNeedle(angle) {
 
 function stopPlaying() {
     if (allowNeedleGrab) {
+        pauseAllTracks();
+        
         stopButton.setAttribute('y', '257');
         
         if (playIconLandscape.getAttribute('points') === '38, 258 38, 268 52, 263') {
@@ -151,6 +169,8 @@ function stopPlaying() {
             moveNeedle(30);
             
             playIconLandscape.setAttribute('points', '38, 262 38, 272 52, 272 52, 262');
+            
+            trackOne.play();
         } else {
             currentTrack = 'Stopped';
             
@@ -176,11 +196,15 @@ function releaseStopButton() {
 
 function clickTrack(event) {
     if (allowNeedleGrab && window.innerWidth > window.innerHeight) {
+        pauseAllTracks();
+        
         currentTrack = event.target.getAttribute('data-track');
         
         startLabelSpin();
         
         arm.setAttribute('style', 'transition-duration: 1s; transform: rotate(' + angles[currentTrack] + 'deg);');
+        
+        document.getElementById('track' + currentTrack + 'Audio').play();
     }
 }
 
@@ -226,10 +250,14 @@ function playStopMobile() {
                 label.addEventListener('animationiteration', stopLabelSpin);
                 label.addEventListener('webkitAnimationIteration', stopLabelSpin);
                 playIcon.setAttribute('points', '410, 259 417, 259 413.5, 267');
+                
+                pauseAllTracks();
             } else {
                 startLabelSpin();
                 moveNeedle(30);
                 playIcon.setAttribute('points', '410, 259 417, 259 417, 267 410, 267');
+                
+                trackOne.play();
             }
         }
         
@@ -237,6 +265,23 @@ function playStopMobile() {
             allowPlayStop = true;
         }, 500);
     }
+}
+
+function pauseAllTracks() {
+    trackOne.pause();
+    trackOne.currentTime = 0;
+    
+    trackTwo.pause();
+    trackTwo.currentTime = 0;
+    
+    trackThree.pause();
+    trackThree.currentTime = 0;
+    
+    trackFour.pause();
+    trackFour.currentTime = 0;
+    
+    trackFive.pause();
+    trackFive.currentTime = 0;
 }
 </script>
 
